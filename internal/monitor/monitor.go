@@ -6,14 +6,12 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/mmirzabaig/uptime-monitor/internal/storage"
 )
 
 type Monitor struct {
-	URL      string
-	Interval time.Duration
-	Timeout  time.Duration
+	URL      string        `json:"url"`
+	Interval time.Duration `json:"interval"`
+	Timeout  time.Duration `json:"timeout"`
 }
 
 func (m Monitor) Check(ctx context.Context, client *http.Client) (Result, error) {
@@ -49,6 +47,5 @@ func (m Monitor) Check(ctx context.Context, client *http.Client) (Result, error)
 	if !result.Success {
 		result.FailureReason = strconv.Itoa(result.ResponseCode)
 	}
-	storage.StoreToMemory(result)
 	return result, nil
 }

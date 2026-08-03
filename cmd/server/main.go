@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
+	"github.com/mmirzabaig/uptime-monitor/internal/api"
 	"github.com/mmirzabaig/uptime-monitor/internal/monitor"
 	"github.com/mmirzabaig/uptime-monitor/internal/scheduler"
 )
@@ -32,4 +35,9 @@ func main() {
 		},
 	}
 	scheduler.Run(websites)
+	fmt.Println("Listening on port 8080!")
+	router := api.NewRouter()
+
+	http.ListenAndServe(":8080", router)
+
 }

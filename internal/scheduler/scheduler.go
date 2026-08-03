@@ -7,28 +7,31 @@ import (
 	"time"
 
 	"github.com/mmirzabaig/uptime-monitor/internal/monitor"
+	"github.com/mmirzabaig/uptime-monitor/internal/storage"
 )
 
 func Run(m []monitor.Monitor) {
-	client := &http.Client{}
-
 	for _, val := range m {
+		AddMonitor(val)
+	}
 
-		go func(mm monitor.Monitor) {
-			for {
-				ctx, cancel := context.WithTimeout(context.Background(), mm.Timeout)
-				_, err := mm.Check(ctx, client)
-				cancel()
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-				time.Sleep(mm.Interval)
+}
+
+func AddMonitor(m monitor.Monitor) {
+	client := &http.Client{}
+	go func(mm monitor.Monitor) {
+		for {
+			ctx, cancel := context.WithTimeout(context.Background(), mm.Timeout)
+			result, err := mm.Check(ctx, client)
+			cancel()
+			if err != nil {
+				fmt.Println(err)
+				return
 			}
-		}(val)
-	}
-	for {
-		time.Sleep(time.Hour)
-	}
 
+			storage.StoreToMemory(result)
+
+			time.Sleep(mm.Interval)
+		}
+	}(m)
 }

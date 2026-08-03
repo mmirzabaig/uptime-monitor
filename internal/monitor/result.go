@@ -5,10 +5,10 @@ import (
 )
 
 type Result struct {
-	URL           string
-	ResponseCode  int
-	Latency       time.Duration
-	Success       bool
-	CheckedAt     time.Time
-	FailureReason string
+	URL           string        `json:"url"`
+	ResponseCode  int           `json:"response_code"`
+	Latency       time.Duration `json:"latency"`
+	Success       bool          `json:"success"`
+	CheckedAt     time.Time     `json:"checked_at"`
+	FailureReason string        `json:"failure_reason"`
 }
