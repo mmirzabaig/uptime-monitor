@@ -11,4 +11,5 @@ type Result struct {
 	Success       bool          `json:"success"`
 	CheckedAt     time.Time     `json:"checked_at"`
 	FailureReason string        `json:"failure_reason"`
+	ID            string        `json:"id"`
 }

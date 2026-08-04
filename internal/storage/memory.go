@@ -18,11 +18,11 @@ var checkedResults = MemoryStorage{
 
 func StoreToMemory(result monitor.Result) {
 	checkedResults.mu.Lock()
-	if key, ok := checkedResults.results[result.URL]; ok {
+	if key, ok := checkedResults.results[result.ID]; ok {
 		key = append(key, result)
-		checkedResults.results[result.URL] = key
+		checkedResults.results[result.ID] = key
 	} else {
-		checkedResults.results[result.URL] = []monitor.Result{result}
+		checkedResults.results[result.ID] = []monitor.Result{result}
 	}
 
 	PrintResult(checkedResults.results)
@@ -38,13 +38,15 @@ func PrintResult(results map[string][]monitor.Result) {
 	}
 }
 
-func GetResults(url string) []monitor.Result {
-	return checkedResults.results[url]
+func GetResults(id string) []monitor.Result {
+	fmt.Println("HELLO", checkedResults.results)
+
+	return checkedResults.results[id]
 }
 
 func GetAllResults() map[string][]monitor.Result {
 	return checkedResults.results
 }
-func GetLastResult(url string) monitor.Result {
-	return checkedResults.results[url][len(checkedResults.results[url])-1]
+func GetLastResult(id string) monitor.Result {
+	return checkedResults.results[id][len(checkedResults.results[id])-1]
 }
