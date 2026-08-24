@@ -7,13 +7,15 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Monitor struct {
 	URL      string        `json:"url"`
 	Interval time.Duration `json:"interval"`
 	Timeout  time.Duration `json:"timeout"`
-	ID       string        `json:"id"`
+	ID       uuid.UUID     `json:"id"`
 }
 
 type MonitorStorage struct {
@@ -27,25 +29,25 @@ var monitors = MonitorStorage{
 			URL:      "https://google.com",
 			Interval: 30 * time.Second,
 			Timeout:  5 * time.Second,
-			ID:       "a1",
+			ID:       uuid.New(),
 		},
 		{
 			URL:      "https://youtube.com",
 			Interval: 30 * time.Second,
 			Timeout:  5 * time.Second,
-			ID:       "a2",
+			ID:       uuid.New(),
 		},
 		{
 			URL:      "https://go.dev/tour/list",
 			Interval: 30 * time.Second,
 			Timeout:  5 * time.Second,
-			ID:       "a3",
+			ID:       uuid.New(),
 		},
 		{
 			URL:      "https://amazon.com",
 			Interval: 30 * time.Second,
 			Timeout:  5 * time.Second,
-			ID:       "a4",
+			ID:       uuid.New(),
 		},
 	},
 }
@@ -59,8 +61,8 @@ func (m Monitor) Check(ctx context.Context, client *http.Client) (Result, error)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, m.URL, nil)
 
 	if err != nil {
-		fmt.Printf("Error creating request: %v\n", err)
 		result.FailureReason = err.Error()
+		return result, err
 	}
 
 	start := time.Now()
@@ -96,5 +98,6 @@ func AddMonitor(m Monitor) {
 func AllMonitors() []Monitor {
 	monitors.mu.RLock()
 	defer monitors.mu.RUnlock()
-	return monitors.monitors
+	// return a copy(slice) of monitors isntead of returning the actual monitors object so no one can modify it
+	return append([]Monitor(nil), monitors.monitors...)
 }

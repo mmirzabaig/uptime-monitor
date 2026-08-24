@@ -13,39 +13,46 @@ import (
 	"github.com/mmirzabaig/uptime-monitor/internal/storage"
 )
 
-func NewRouter() http.Handler {
+type API struct {
+	scheduler *scheduler.Scheduler
+}
+
+func NewRouter(s *scheduler.Scheduler) http.Handler {
+	api := API{
+		scheduler: s,
+	}
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /health/{id}", healthHandler)
-	mux.HandleFunc("GET /results/{id}", getResultsHandler)
-	mux.HandleFunc("GET /results/", getAllResultsHandler)
-	mux.HandleFunc("POST /new-monitor", addNewMonitor)
-	mux.HandleFunc("GET /monitors", listMonitors)
+	mux.HandleFunc("GET /health/{id}", api.healthHandler)
+	mux.HandleFunc("GET /results/{id}", api.getResultsHandler)
+	mux.HandleFunc("GET /results/", api.getAllResultsHandler)
+	mux.HandleFunc("POST /new-monitor", api.addNewMonitor)
+	mux.HandleFunc("GET /monitors", api.listMonitors)
 	return mux
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func (a *API) healthHandler(w http.ResponseWriter, r *http.Request) {
 	urlParam := r.PathValue("id")
 	result := storage.GetLastResult(urlParam)
 	json.NewEncoder(w).Encode(result)
 }
 
-func listMonitors(w http.ResponseWriter, r *http.Request) {
+func (a *API) listMonitors(w http.ResponseWriter, r *http.Request) {
 	monitors := monitor.AllMonitors()
 	json.NewEncoder(w).Encode(monitors)
 }
 
-func getResultsHandler(w http.ResponseWriter, r *http.Request) {
+func (a *API) getResultsHandler(w http.ResponseWriter, r *http.Request) {
 	urlParam := r.PathValue("id")
 	fmt.Println("ID", urlParam)
 	result := storage.GetResults(urlParam)
 	json.NewEncoder(w).Encode(result)
 }
-func getAllResultsHandler(w http.ResponseWriter, r *http.Request) {
+func (a *API) getAllResultsHandler(w http.ResponseWriter, r *http.Request) {
 	results := storage.GetAllResults()
 	json.NewEncoder(w).Encode(results)
 }
-func addNewMonitor(w http.ResponseWriter, r *http.Request) {
+func (a *API) addNewMonitor(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	type Req struct {
@@ -62,7 +69,7 @@ func addNewMonitor(w http.ResponseWriter, r *http.Request) {
 
 	var NewMonitor monitor.Monitor
 
-	id := uuid.New().String()
+	id := uuid.New()
 	NewMonitor.ID = id
 
 	parsedURL, err := url.ParseRequestURI(req.URL)
@@ -84,7 +91,7 @@ func addNewMonitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	monitor.AddMonitor(NewMonitor)
-	scheduler.AddMonitor(NewMonitor)
+	a.scheduler.AddMonitor(NewMonitor)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

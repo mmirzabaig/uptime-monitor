@@ -16,18 +16,18 @@ var checkedResults = MemoryStorage{
 	results: make(map[string][]monitor.Result),
 }
 
-func StoreToMemory(result monitor.Result) {
-	checkedResults.mu.Lock()
-	if key, ok := checkedResults.results[result.ID]; ok {
-		key = append(key, result)
-		checkedResults.results[result.ID] = key
-	} else {
-		checkedResults.results[result.ID] = []monitor.Result{result}
-	}
+// func StoreToMemory(result monitor.Result) {
+// 	checkedResults.mu.Lock()
+// 	if key, ok := checkedResults.results[result.ID]; ok {
+// 		key = append(key, result)
+// 		checkedResults.results[result.ID] = key
+// 	} else {
+// 		checkedResults.results[result.ID] = []monitor.Result{result}
+// 	}
 
-	PrintResult(checkedResults.results)
-	checkedResults.mu.Unlock()
-}
+// 	PrintResult(checkedResults.results)
+// 	checkedResults.mu.Unlock()
+// }
 
 func PrintResult(results map[string][]monitor.Result) {
 	for key, arr := range results {
