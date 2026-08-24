@@ -27,10 +27,24 @@ func main() {
 
 	websites := monitor.AllMonitors()
 
-	s.Run(websites)
+	for _, m := range websites {
+		err := storage.CreateMonitor(ctx, db, m)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	monitors, err := storage.GetAllMonitors(ctx, db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, m := range monitors {
+		s.AddMonitor(m)
+	}
 
 	fmt.Println("Listening on port 8080!")
-	router := api.NewRouter(s)
+	router := api.NewRouter(s, db)
 
 	http.ListenAndServe(":8080", router)
 

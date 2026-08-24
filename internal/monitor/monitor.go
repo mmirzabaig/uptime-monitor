@@ -49,6 +49,12 @@ var monitors = MonitorStorage{
 			Timeout:  5 * time.Second,
 			ID:       uuid.New(),
 		},
+		{
+			URL:      "https://open.spotify.com/",
+			Interval: 30 * time.Second,
+			Timeout:  5 * time.Second,
+			ID:       uuid.New(),
+		},
 	},
 }
 

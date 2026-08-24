@@ -38,11 +38,11 @@ func PrintResult(results map[string][]monitor.Result) {
 	}
 }
 
-func GetResults(id string) []monitor.Result {
-	fmt.Println("HELLO", checkedResults.results)
+// func GetResults(id string) []monitor.Result {
+// 	fmt.Println("HELLO", checkedResults.results)
 
-	return checkedResults.results[id]
-}
+// 	return checkedResults.results[id]
+// }
 
 func GetAllResults() map[string][]monitor.Result {
 	return checkedResults.results

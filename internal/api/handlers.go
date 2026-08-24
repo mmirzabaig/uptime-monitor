@@ -2,12 +2,12 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mmirzabaig/uptime-monitor/internal/monitor"
 	"github.com/mmirzabaig/uptime-monitor/internal/scheduler"
 	"github.com/mmirzabaig/uptime-monitor/internal/storage"
@@ -15,11 +15,13 @@ import (
 
 type API struct {
 	scheduler *scheduler.Scheduler
+	db        *pgxpool.Pool
 }
 
-func NewRouter(s *scheduler.Scheduler) http.Handler {
+func NewRouter(s *scheduler.Scheduler, db *pgxpool.Pool) http.Handler {
 	api := API{
 		scheduler: s,
+		db:        db,
 	}
 	mux := http.NewServeMux()
 
@@ -38,15 +40,30 @@ func (a *API) healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) listMonitors(w http.ResponseWriter, r *http.Request) {
-	monitors := monitor.AllMonitors()
+	monitors, err := storage.GetAllMonitors(r.Context(), a.db)
+	if err != nil {
+		http.Error(w, "Failed to get monitors", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(monitors)
 }
 
 func (a *API) getResultsHandler(w http.ResponseWriter, r *http.Request) {
 	urlParam := r.PathValue("id")
-	fmt.Println("ID", urlParam)
-	result := storage.GetResults(urlParam)
-	json.NewEncoder(w).Encode(result)
+	monitorID, err := uuid.Parse(urlParam)
+	if err != nil {
+		http.Error(w, "Invalid monitor ID", http.StatusBadRequest)
+		return
+	}
+	results, err := storage.GetResults(r.Context(), a.db, monitorID)
+	if err != nil {
+		http.Error(w, "Failed to get results", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(results)
 }
 func (a *API) getAllResultsHandler(w http.ResponseWriter, r *http.Request) {
 	results := storage.GetAllResults()
@@ -90,7 +107,13 @@ func (a *API) addNewMonitor(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid interval", http.StatusBadRequest)
 		return
 	}
-	monitor.AddMonitor(NewMonitor)
+
+	err = storage.CreateMonitor(r.Context(), a.db, NewMonitor)
+	if err != nil {
+		http.Error(w, "Failed to create monitor", http.StatusInternalServerError)
+		return
+	}
+
 	a.scheduler.AddMonitor(NewMonitor)
 
 	w.Header().Set("Content-Type", "application/json")
