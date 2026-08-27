@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,8 +35,25 @@ func NewRouter(s *scheduler.Scheduler, db *pgxpool.Pool) http.Handler {
 }
 
 func (a *API) healthHandler(w http.ResponseWriter, r *http.Request) {
-	urlParam := r.PathValue("id")
-	result := storage.GetLastResult(urlParam)
+	id := r.PathValue("id")
+
+	monitorID, err := uuid.Parse(id)
+	if err != nil {
+		http.Error(w, "Invalid monitor ID", http.StatusBadRequest)
+		return
+	}
+
+	result, err := storage.GetLastResult(
+		r.Context(),
+		a.db,
+		monitorID,
+	)
+	if err != nil {
+		http.Error(w, "Failed to get health result", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
 }
 
@@ -57,7 +75,51 @@ func (a *API) getResultsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid monitor ID", http.StatusBadRequest)
 		return
 	}
-	results, err := storage.GetResults(r.Context(), a.db, monitorID)
+	query := r.URL.Query()
+
+	limit := 50
+	limitStr := query.Get("limit")
+
+	if limitStr != "" {
+		parsedLimit, err := strconv.Atoi(limitStr)
+		if err != nil {
+			http.Error(w, "limit must be a number", http.StatusBadRequest)
+			return
+		}
+
+		if parsedLimit <= 0 {
+			http.Error(w, "limit must be greater than 0", http.StatusBadRequest)
+			return
+		}
+
+		if parsedLimit > 100 {
+			http.Error(w, "limit cannot be greater than 100", http.StatusBadRequest)
+			return
+		}
+
+		limit = parsedLimit
+	}
+
+	offset := 0
+
+	offsetStr := query.Get("offset")
+
+	if offsetStr != "" {
+		parsedOffset, err := strconv.Atoi(offsetStr)
+		if err != nil {
+			http.Error(w, "offset must be a number", http.StatusBadRequest)
+			return
+		}
+
+		if parsedOffset < 0 {
+			http.Error(w, "offset must be atleast 0", http.StatusBadRequest)
+			return
+		}
+
+		offset = parsedOffset
+	}
+
+	results, err := storage.GetResults(r.Context(), a.db, monitorID, limit, offset)
 	if err != nil {
 		http.Error(w, "Failed to get results", http.StatusInternalServerError)
 		return

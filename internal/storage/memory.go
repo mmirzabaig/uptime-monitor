@@ -47,6 +47,7 @@ func PrintResult(results map[string][]monitor.Result) {
 func GetAllResults() map[string][]monitor.Result {
 	return checkedResults.results
 }
-func GetLastResult(id string) monitor.Result {
-	return checkedResults.results[id][len(checkedResults.results[id])-1]
-}
+
+// func GetLastResult(id string) monitor.Result {
+// 	return checkedResults.results[id][len(checkedResults.results[id])-1]
+// }

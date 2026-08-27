@@ -103,7 +103,13 @@ func GetAllMonitors(ctx context.Context, db *pgxpool.Pool) ([]monitor.Monitor, e
 	return monitors, nil
 }
 
-func GetResults(ctx context.Context, db *pgxpool.Pool, monitorID uuid.UUID) ([]monitor.Result, error) {
+func GetResults(
+	ctx context.Context,
+	db *pgxpool.Pool,
+	monitorID uuid.UUID,
+	limit int,
+	offset int,
+) ([]monitor.Result, error) {
 	rows, err := db.Query(ctx, `
 		SELECT
 			url,
@@ -116,7 +122,8 @@ func GetResults(ctx context.Context, db *pgxpool.Pool, monitorID uuid.UUID) ([]m
 		FROM results
 		WHERE monitor_id = $1
 		ORDER BY checked_at DESC
-	`, monitorID)
+		LIMIT $2 OFFSET $3
+	`, monitorID, limit, offset)
 
 	if err != nil {
 		return nil, err
@@ -149,4 +156,41 @@ func GetResults(ctx context.Context, db *pgxpool.Pool, monitorID uuid.UUID) ([]m
 	}
 
 	return results, nil
+}
+
+func GetLastResult(
+	ctx context.Context,
+	db *pgxpool.Pool,
+	monitorID uuid.UUID,
+) (monitor.Result, error) {
+	var result monitor.Result
+
+	err := db.QueryRow(ctx, `
+		SELECT
+			url,
+			monitor_id,
+			response_code,
+			latency,
+			success,
+			checked_at,
+			failure_reason
+		FROM results
+		WHERE monitor_id = $1
+		ORDER BY checked_at DESC
+		LIMIT 1
+	`, monitorID).Scan(
+		&result.URL,
+		&result.ID,
+		&result.ResponseCode,
+		&result.Latency,
+		&result.Success,
+		&result.CheckedAt,
+		&result.FailureReason,
+	)
+
+	if err != nil {
+		return monitor.Result{}, err
+	}
+
+	return result, nil
 }
