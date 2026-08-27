@@ -2,7 +2,6 @@ package monitor
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
@@ -75,15 +74,20 @@ func (m Monitor) Check(ctx context.Context, client *http.Client) (Result, error)
 	result.CheckedAt = start
 
 	resp, err := client.Do(req)
-	if ctx.Err() == context.DeadlineExceeded {
-		result.FailureReason = "Timed Out"
-		return result, err
-	}
 	if err != nil {
-		// If the timeout is reached, client.Do returns an error
-		fmt.Printf("Request failed (possibly due to timeout): %v\n", err)
-		return result, err
+		result.Latency = time.Since(start)
+
+		if ctx.Err() == context.DeadlineExceeded {
+			result.FailureReason = "Timed Out"
+		} else {
+			result.FailureReason = err.Error()
+		}
+
+		result.Success = false
+
+		return result, nil
 	}
+
 	defer resp.Body.Close()
 
 	latency := time.Since(start)

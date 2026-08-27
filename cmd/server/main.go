@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/mmirzabaig/uptime-monitor/internal/api"
 	"github.com/mmirzabaig/uptime-monitor/internal/monitor"
@@ -13,7 +17,12 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
 
 	db, err := storage.NewPostgres(ctx)
 	if err != nil {
@@ -23,7 +32,7 @@ func main() {
 
 	fmt.Println("Connected to PostgreSQL!")
 
-	s := scheduler.NewScheduler(db)
+	s := scheduler.NewScheduler(ctx, db)
 
 	websites := monitor.AllMonitors()
 
@@ -43,9 +52,36 @@ func main() {
 		s.AddMonitor(m)
 	}
 
-	fmt.Println("Listening on port 8080!")
-	router := api.NewRouter(s, db)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: api.NewRouter(s, db),
+	}
 
-	http.ListenAndServe(":8080", router)
+	go func() {
+		fmt.Println("Server listening on :8080")
 
+		err := server.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			fmt.Println("Server error:", err)
+		}
+	}()
+
+	// Wait for Ctrl+C / SIGTERM
+	<-ctx.Done()
+
+	fmt.Println("Shutting down...")
+
+	shutdownCtx, cancel := context.WithTimeout(
+		context.Background(),
+		5*time.Second,
+	)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		fmt.Println("Server shutdown error:", err)
+	}
+
+	s.Wait()
+
+	fmt.Println("HTTP server stopped")
 }
