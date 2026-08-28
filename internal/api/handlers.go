@@ -28,7 +28,7 @@ func NewRouter(s *scheduler.Scheduler, db *pgxpool.Pool) http.Handler {
 
 	mux.HandleFunc("GET /health/{id}", api.healthHandler)
 	mux.HandleFunc("GET /results/{id}", api.getResultsHandler)
-	mux.HandleFunc("GET /results/", api.getAllResultsHandler)
+	// mux.HandleFunc("GET /results/", api.getAllResultsHandler)
 	mux.HandleFunc("POST /new-monitor", api.addNewMonitor)
 	mux.HandleFunc("GET /monitors", api.listMonitors)
 	return mux
@@ -127,10 +127,11 @@ func (a *API) getResultsHandler(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(results)
 }
-func (a *API) getAllResultsHandler(w http.ResponseWriter, r *http.Request) {
-	results := storage.GetAllResults()
-	json.NewEncoder(w).Encode(results)
-}
+
+//	func (a *API) getAllResultsHandler(w http.ResponseWriter, r *http.Request) {
+//		results := storage.GetAllResults()
+//		json.NewEncoder(w).Encode(results)
+//	}
 func (a *API) addNewMonitor(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 

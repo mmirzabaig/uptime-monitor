@@ -61,7 +61,7 @@ func (m Monitor) Check(ctx context.Context, client *http.Client) (Result, error)
 	result := Result{}
 
 	result.URL = m.URL
-	result.ID = m.ID
+	result.MonitorID = m.ID
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, m.URL, nil)
 

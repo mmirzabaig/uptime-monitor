@@ -13,5 +13,5 @@ type Result struct {
 	Success       bool          `json:"success"`
 	CheckedAt     time.Time     `json:"checked_at"`
 	FailureReason string        `json:"failure_reason"`
-	ID            uuid.UUID     `json:"id"`
+	MonitorID     uuid.UUID     `json:"monitor_id"`
 }

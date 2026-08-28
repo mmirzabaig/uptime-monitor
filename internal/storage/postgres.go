@@ -41,7 +41,7 @@ func StoreResult(
 		)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`,
-		result.ID,
+		result.MonitorID,
 		result.URL,
 		result.ResponseCode,
 		result.Latency,
@@ -137,7 +137,7 @@ func GetResults(
 
 		err := rows.Scan(
 			&result.URL,
-			&result.ID,
+			&result.MonitorID,
 			&result.ResponseCode,
 			&result.Latency,
 			&result.Success,
@@ -180,7 +180,7 @@ func GetLastResult(
 		LIMIT 1
 	`, monitorID).Scan(
 		&result.URL,
-		&result.ID,
+		&result.MonitorID,
 		&result.ResponseCode,
 		&result.Latency,
 		&result.Success,

@@ -1,0 +1,1 @@
+DROP INDEX idx_results_monitor_checked_at;
