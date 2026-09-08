@@ -6,6 +6,7 @@ option go_package = "github.com/mmirzabaig/uptime-monitor/gen/scheduler";
 
 service Scheduler {
     rpc CreateMonitor(CreateMonitorRequest) returns (CreateMonitorResponse);
+    rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerResponse);
 }
 
 message CreateMonitorRequest {
@@ -15,5 +16,13 @@ message CreateMonitorRequest {
 }
 
 message CreateMonitorResponse {
+    string id = 1;
+}
+
+message RegisterWorkerRequest {
+    string address = 1;
+}
+
+message RegisterWorkerResponse {
     string id = 1;
 }

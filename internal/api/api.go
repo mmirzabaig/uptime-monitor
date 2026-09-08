@@ -222,7 +222,7 @@ func (a *API) addNewMonitor(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, "timeout must be less than interval", http.StatusBadRequest)
 		return
 	}
-
+	// ---------------- grpc request----------------
 	response, err := a.scheduler.CreateMonitor(
 		r.Context(),
 		&schedulerspb.CreateMonitorRequest{
@@ -231,6 +231,7 @@ func (a *API) addNewMonitor(w http.ResponseWriter, r *http.Request) {
 			Timeout:  int64(timeout),
 		},
 	)
+	// --------------------------------------------
 	if err != nil {
 		if status.Code(err) == codes.AlreadyExists {
 			writeJSONError(

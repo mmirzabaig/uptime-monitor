@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             v3.21.12
-// source: scheduler.proto
+// source: proto/scheduler.proto
 
 package scheduler
 
@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Scheduler_CreateMonitor_FullMethodName = "/scheduler.Scheduler/CreateMonitor"
+	Scheduler_CreateMonitor_FullMethodName  = "/scheduler.Scheduler/CreateMonitor"
+	Scheduler_RegisterWorker_FullMethodName = "/scheduler.Scheduler/RegisterWorker"
 )
 
 // SchedulerClient is the client API for Scheduler service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SchedulerClient interface {
 	CreateMonitor(ctx context.Context, in *CreateMonitorRequest, opts ...grpc.CallOption) (*CreateMonitorResponse, error)
+	RegisterWorker(ctx context.Context, in *RegisterWorkerRequest, opts ...grpc.CallOption) (*RegisterWorkerResponse, error)
 }
 
 type schedulerClient struct {
@@ -47,11 +49,22 @@ func (c *schedulerClient) CreateMonitor(ctx context.Context, in *CreateMonitorRe
 	return out, nil
 }
 
+func (c *schedulerClient) RegisterWorker(ctx context.Context, in *RegisterWorkerRequest, opts ...grpc.CallOption) (*RegisterWorkerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegisterWorkerResponse)
+	err := c.cc.Invoke(ctx, Scheduler_RegisterWorker_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SchedulerServer is the server API for Scheduler service.
 // All implementations must embed UnimplementedSchedulerServer
 // for forward compatibility.
 type SchedulerServer interface {
 	CreateMonitor(context.Context, *CreateMonitorRequest) (*CreateMonitorResponse, error)
+	RegisterWorker(context.Context, *RegisterWorkerRequest) (*RegisterWorkerResponse, error)
 	mustEmbedUnimplementedSchedulerServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedSchedulerServer struct{}
 
 func (UnimplementedSchedulerServer) CreateMonitor(context.Context, *CreateMonitorRequest) (*CreateMonitorResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateMonitor not implemented")
+}
+func (UnimplementedSchedulerServer) RegisterWorker(context.Context, *RegisterWorkerRequest) (*RegisterWorkerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RegisterWorker not implemented")
 }
 func (UnimplementedSchedulerServer) mustEmbedUnimplementedSchedulerServer() {}
 func (UnimplementedSchedulerServer) testEmbeddedByValue()                   {}
@@ -104,6 +120,24 @@ func _Scheduler_CreateMonitor_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Scheduler_RegisterWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterWorkerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SchedulerServer).RegisterWorker(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Scheduler_RegisterWorker_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SchedulerServer).RegisterWorker(ctx, req.(*RegisterWorkerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Scheduler_ServiceDesc is the grpc.ServiceDesc for Scheduler service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -115,7 +149,11 @@ var Scheduler_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CreateMonitor",
 			Handler:    _Scheduler_CreateMonitor_Handler,
 		},
+		{
+			MethodName: "RegisterWorker",
+			Handler:    _Scheduler_RegisterWorker_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "scheduler.proto",
+	Metadata: "proto/scheduler.proto",
 }

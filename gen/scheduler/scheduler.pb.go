@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        v3.21.12
-// source: scheduler.proto
+// source: proto/scheduler.proto
 
 package scheduler
 
@@ -32,7 +32,7 @@ type CreateMonitorRequest struct {
 
 func (x *CreateMonitorRequest) Reset() {
 	*x = CreateMonitorRequest{}
-	mi := &file_scheduler_proto_msgTypes[0]
+	mi := &file_proto_scheduler_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +44,7 @@ func (x *CreateMonitorRequest) String() string {
 func (*CreateMonitorRequest) ProtoMessage() {}
 
 func (x *CreateMonitorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_scheduler_proto_msgTypes[0]
+	mi := &file_proto_scheduler_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +57,7 @@ func (x *CreateMonitorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateMonitorRequest.ProtoReflect.Descriptor instead.
 func (*CreateMonitorRequest) Descriptor() ([]byte, []int) {
-	return file_scheduler_proto_rawDescGZIP(), []int{0}
+	return file_proto_scheduler_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CreateMonitorRequest) GetUrl() string {
@@ -90,7 +90,7 @@ type CreateMonitorResponse struct {
 
 func (x *CreateMonitorResponse) Reset() {
 	*x = CreateMonitorResponse{}
-	mi := &file_scheduler_proto_msgTypes[1]
+	mi := &file_proto_scheduler_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -102,7 +102,7 @@ func (x *CreateMonitorResponse) String() string {
 func (*CreateMonitorResponse) ProtoMessage() {}
 
 func (x *CreateMonitorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_scheduler_proto_msgTypes[1]
+	mi := &file_proto_scheduler_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -115,7 +115,7 @@ func (x *CreateMonitorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateMonitorResponse.ProtoReflect.Descriptor instead.
 func (*CreateMonitorResponse) Descriptor() ([]byte, []int) {
-	return file_scheduler_proto_rawDescGZIP(), []int{1}
+	return file_proto_scheduler_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateMonitorResponse) GetId() string {
@@ -125,67 +125,164 @@ func (x *CreateMonitorResponse) GetId() string {
 	return ""
 }
 
-var File_scheduler_proto protoreflect.FileDescriptor
+type RegisterWorkerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
 
-const file_scheduler_proto_rawDesc = "" +
+func (x *RegisterWorkerRequest) Reset() {
+	*x = RegisterWorkerRequest{}
+	mi := &file_proto_scheduler_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterWorkerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterWorkerRequest) ProtoMessage() {}
+
+func (x *RegisterWorkerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_scheduler_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterWorkerRequest.ProtoReflect.Descriptor instead.
+func (*RegisterWorkerRequest) Descriptor() ([]byte, []int) {
+	return file_proto_scheduler_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RegisterWorkerRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+type RegisterWorkerResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterWorkerResponse) Reset() {
+	*x = RegisterWorkerResponse{}
+	mi := &file_proto_scheduler_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterWorkerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterWorkerResponse) ProtoMessage() {}
+
+func (x *RegisterWorkerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_scheduler_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterWorkerResponse.ProtoReflect.Descriptor instead.
+func (*RegisterWorkerResponse) Descriptor() ([]byte, []int) {
+	return file_proto_scheduler_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RegisterWorkerResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+var File_proto_scheduler_proto protoreflect.FileDescriptor
+
+const file_proto_scheduler_proto_rawDesc = "" +
 	"\n" +
-	"\x0fscheduler.proto\x12\tscheduler\"^\n" +
+	"\x15proto/scheduler.proto\x12\tscheduler\"^\n" +
 	"\x14CreateMonitorRequest\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x1a\n" +
 	"\binterval\x18\x02 \x01(\x03R\binterval\x12\x18\n" +
 	"\atimeout\x18\x03 \x01(\x03R\atimeout\"'\n" +
 	"\x15CreateMonitorResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id2_\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
+	"\x15RegisterWorkerRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"(\n" +
+	"\x16RegisterWorkerResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id2\xb6\x01\n" +
 	"\tScheduler\x12R\n" +
-	"\rCreateMonitor\x12\x1f.scheduler.CreateMonitorRequest\x1a .scheduler.CreateMonitorResponseB4Z2github.com/mmirzabaig/uptime-monitor/gen/schedulerb\x06proto3"
+	"\rCreateMonitor\x12\x1f.scheduler.CreateMonitorRequest\x1a .scheduler.CreateMonitorResponse\x12U\n" +
+	"\x0eRegisterWorker\x12 .scheduler.RegisterWorkerRequest\x1a!.scheduler.RegisterWorkerResponseB4Z2github.com/mmirzabaig/uptime-monitor/gen/schedulerb\x06proto3"
 
 var (
-	file_scheduler_proto_rawDescOnce sync.Once
-	file_scheduler_proto_rawDescData []byte
+	file_proto_scheduler_proto_rawDescOnce sync.Once
+	file_proto_scheduler_proto_rawDescData []byte
 )
 
-func file_scheduler_proto_rawDescGZIP() []byte {
-	file_scheduler_proto_rawDescOnce.Do(func() {
-		file_scheduler_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_scheduler_proto_rawDesc), len(file_scheduler_proto_rawDesc)))
+func file_proto_scheduler_proto_rawDescGZIP() []byte {
+	file_proto_scheduler_proto_rawDescOnce.Do(func() {
+		file_proto_scheduler_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_scheduler_proto_rawDesc), len(file_proto_scheduler_proto_rawDesc)))
 	})
-	return file_scheduler_proto_rawDescData
+	return file_proto_scheduler_proto_rawDescData
 }
 
-var file_scheduler_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_scheduler_proto_goTypes = []any{
-	(*CreateMonitorRequest)(nil),  // 0: scheduler.CreateMonitorRequest
-	(*CreateMonitorResponse)(nil), // 1: scheduler.CreateMonitorResponse
+var file_proto_scheduler_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_proto_scheduler_proto_goTypes = []any{
+	(*CreateMonitorRequest)(nil),   // 0: scheduler.CreateMonitorRequest
+	(*CreateMonitorResponse)(nil),  // 1: scheduler.CreateMonitorResponse
+	(*RegisterWorkerRequest)(nil),  // 2: scheduler.RegisterWorkerRequest
+	(*RegisterWorkerResponse)(nil), // 3: scheduler.RegisterWorkerResponse
 }
-var file_scheduler_proto_depIdxs = []int32{
+var file_proto_scheduler_proto_depIdxs = []int32{
 	0, // 0: scheduler.Scheduler.CreateMonitor:input_type -> scheduler.CreateMonitorRequest
-	1, // 1: scheduler.Scheduler.CreateMonitor:output_type -> scheduler.CreateMonitorResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: scheduler.Scheduler.RegisterWorker:input_type -> scheduler.RegisterWorkerRequest
+	1, // 2: scheduler.Scheduler.CreateMonitor:output_type -> scheduler.CreateMonitorResponse
+	3, // 3: scheduler.Scheduler.RegisterWorker:output_type -> scheduler.RegisterWorkerResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_scheduler_proto_init() }
-func file_scheduler_proto_init() {
-	if File_scheduler_proto != nil {
+func init() { file_proto_scheduler_proto_init() }
+func file_proto_scheduler_proto_init() {
+	if File_proto_scheduler_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_scheduler_proto_rawDesc), len(file_scheduler_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_scheduler_proto_rawDesc), len(file_proto_scheduler_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_scheduler_proto_goTypes,
-		DependencyIndexes: file_scheduler_proto_depIdxs,
-		MessageInfos:      file_scheduler_proto_msgTypes,
+		GoTypes:           file_proto_scheduler_proto_goTypes,
+		DependencyIndexes: file_proto_scheduler_proto_depIdxs,
+		MessageInfos:      file_proto_scheduler_proto_msgTypes,
 	}.Build()
-	File_scheduler_proto = out.File
-	file_scheduler_proto_goTypes = nil
-	file_scheduler_proto_depIdxs = nil
+	File_proto_scheduler_proto = out.File
+	file_proto_scheduler_proto_goTypes = nil
+	file_proto_scheduler_proto_depIdxs = nil
 }
