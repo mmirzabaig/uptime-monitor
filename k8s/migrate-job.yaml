@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: migrate
+
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: migrate
+          image: uptime-monitor-migrate:latest
+          imagePullPolicy: IfNotPresent
+
+          args:
+            - "-path=/migrations"
+            - "-database=postgres://postgres:postgres@postgres:5432/uptime_monitor?sslmode=disable"
+            - "up"

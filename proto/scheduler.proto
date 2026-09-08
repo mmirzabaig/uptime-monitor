@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package scheduler;
+
+option go_package = "github.com/mmirzabaig/uptime-monitor/gen/scheduler";
+
+service Scheduler {
+    rpc CreateMonitor(CreateMonitorRequest) returns (CreateMonitorResponse);
+}
+
+message CreateMonitorRequest {
+    string url = 1;
+    int64 interval = 2;
+    int64 timeout = 3;
+}
+
+message CreateMonitorResponse {
+    string id = 1;
+}

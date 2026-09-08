@@ -100,11 +100,6 @@ func (m Monitor) Check(ctx context.Context, client *http.Client) (Result, error)
 	return result, nil
 }
 
-func AddMonitor(m Monitor) {
-	monitors.mu.Lock()
-	defer monitors.mu.Unlock()
-	monitors.monitors = append(monitors.monitors, m)
-}
 func AllMonitors() []Monitor {
 	monitors.mu.RLock()
 	defer monitors.mu.RUnlock()

@@ -2,26 +2,45 @@ package storage
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"os"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mmirzabaig/uptime-monitor/internal/monitor"
 )
 
 func NewPostgres(ctx context.Context) (*pgxpool.Pool, error) {
-	connString := "postgres://postgres:password@localhost:5432/uptime_monitor"
+	databaseURL := os.Getenv("DATABASE_URL")
 
-	pool, err := pgxpool.New(ctx, connString)
+	if databaseURL == "" {
+		return nil, fmt.Errorf("DATABASE_URL is not set")
+	}
+
+	config, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := pool.Ping(ctx); err != nil {
-		pool.Close()
+	config.MaxConns = 10
+	config.MinConns = 2
+	config.MaxConnLifetime = time.Hour
+	config.MaxConnIdleTime = 30 * time.Minute
+
+	db, err := pgxpool.NewWithConfig(ctx, config)
+	if err != nil {
 		return nil, err
 	}
 
-	return pool, nil
+	if err := db.Ping(ctx); err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func StoreResult(
@@ -53,19 +72,34 @@ func StoreResult(
 	return err
 }
 
-func CreateMonitor(ctx context.Context, db *pgxpool.Pool, m monitor.Monitor) error {
-	_, err := db.Exec(ctx, `
+func CreateMonitor(
+	ctx context.Context,
+	db *pgxpool.Pool,
+	m monitor.Monitor,
+) (bool, error) {
+	var id uuid.UUID
+
+	err := db.QueryRow(ctx, `
 		INSERT INTO monitors (id, url, interval, timeout)
 		VALUES ($1, $2, $3, $4)
 		ON CONFLICT (url) DO NOTHING
+		RETURNING id
 	`,
 		m.ID,
 		m.URL,
 		m.Interval,
 		m.Timeout,
-	)
+	).Scan(&id)
 
-	return err
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
 
 func GetAllMonitors(ctx context.Context, db *pgxpool.Pool) ([]monitor.Monitor, error) {
@@ -193,4 +227,22 @@ func GetLastResult(
 	}
 
 	return result, nil
+}
+
+func MonitorExists(
+	ctx context.Context,
+	db *pgxpool.Pool,
+	monitorID uuid.UUID,
+) (bool, error) {
+	var exists bool
+
+	err := db.QueryRow(ctx, `
+		SELECT EXISTS (
+			SELECT 1
+			FROM monitors
+			WHERE id = $1
+		)
+	`, monitorID).Scan(&exists)
+
+	return exists, err
 }

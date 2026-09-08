@@ -1,0 +1,61 @@
+services:
+
+  postgres:
+    image: postgres:17
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: uptime_monitor
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d uptime_monitor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  migrate:
+    image: migrate/migrate
+
+    volumes:
+      - ./migrations:/migrations
+
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://postgres:postgres@postgres:5432/uptime_monitor?sslmode=disable"
+      - "up"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+  uptime-monitor:
+    build: .
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/uptime_monitor?sslmode=disable
+      SERVER_ADDR: ":8080"
+
+    restart: unless-stopped  
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/monitors"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+
+volumes:
+  postgres_data:
